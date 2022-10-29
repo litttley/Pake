@@ -1,5 +1,15 @@
-use tauri_utils::config::{Config, WindowConfig};
-
+ use image;
+use tauri_utils::config::{Config, WindowConfig,BundleConfig};
+use wry::application::window::Icon;
+use std::path::Path;
+#[cfg(target_os = "macos")]
+use wry::application::platform::macos::EventLoopWindowTargetExtMacOS;
+#[cfg(target_os = "macos")]
+use wry::application::platform::macos::WindowBuilderExtMacOS;
+#[cfg(target_os = "linux")]
+use wry::application::platform::unix::{WindowBuilderExtUnix, WindowExtUnix};
+#[cfg(windows)]
+use wry::application::platform::windows::{WindowBuilderExtWindows, WindowExtWindows};
 fn main() -> wry::Result<()> {
     use wry::{
         application::{
@@ -14,14 +24,7 @@ fn main() -> wry::Result<()> {
         webview::WebViewBuilder,
     };
 
-    // #[cfg(target_os = "macos")]
-    // use wry::application::platform::macos::EventLoopWindowTargetExtMacOS;
-    // #[cfg(target_os = "macos")]
-    // use wry::application::platform::macos::WindowBuilderExtMacOS;
-    // #[cfg(target_os = "linux")]
-    // use wry::application::platform::unix::{WindowBuilderExtUnix, WindowExtUnix};
-    // #[cfg(windows)]
-    // use wry::application::platform::windows::{WindowBuilderExtWindows, WindowExtWindows};
+
 
     let mut menu_bar_menu = Menu::new();
     let mut first_menu = Menu::new();
@@ -45,32 +48,70 @@ fn main() -> wry::Result<()> {
 
     menu_bar_menu.add_submenu("App", true, first_menu);
 
-    let WindowConfig {
+    let (WindowConfig {
         url,
         width,
         height,
         resizable,
         transparent,
         fullscreen,
+        //标题
+        title,
+       //是否隐藏窗口标题
+        decorations,
         ..
-    } = get_windows_config().unwrap_or(WindowConfig::default());
+    },BundleConfig{
+
+        icon,
+        ..
+
+    }) = get_windows_config().unwrap_or((WindowConfig::default(),BundleConfig::default()));
     let event_loop = EventLoop::new();
+    #[cfg(target_os = "macos")]
     let window = WindowBuilder::new()
         .with_resizable(resizable)
-        // .with_title(title)
-        // .with_titlebar_transparent(transparent)
+        .with_titlebar_transparent(transparent)
         .with_fullscreen(if fullscreen {
             Some(Fullscreen::Borderless(None))
         } else {
             None
         })
-        // .with_fullsize_content_view(true)
-        // .with_titlebar_buttons_hidden(false)
-        // .with_title_hidden(true)
+        .with_fullsize_content_view(true)
+        .with_titlebar_buttons_hidden(false)
+        .with_title_hidden(true)
         .with_menu(menu_bar_menu)
         .with_inner_size(wry::application::dpi::LogicalSize::new(width, height))
         .build(&event_loop)
         .unwrap();
+
+      let s =   icon.into_iter().find(|x|x.ends_with(".png")).map(|x|  {
+      
+   
+        load_icon(Path::new(&x ))
+      } );
+    let window = WindowBuilder::new()
+    .with_resizable(resizable)
+   
+    // .with_titlebar_transparent(transparent)
+    .with_fullscreen(if fullscreen {
+        Some(Fullscreen::Borderless(None))
+    } else {
+        None
+    })
+    .with_decorations(decorations)
+    
+    // .with_fullsize_content_view(true)
+    // .with_titlebar_buttons_hidden(false)
+    // .with_title_hidden(true)
+    // .with_menu(menu_bar_menu)
+
+    .with_title(title)
+    .with_window_icon(s)
+    .with_inner_size(wry::application::dpi::LogicalSize::new(width, height))
+    .build(&event_loop)
+    .unwrap();
+
+    
 
     let handler = move |window: &Window, req: String| {
         if req == "drag_window" {
@@ -86,9 +127,11 @@ fn main() -> wry::Result<()> {
 
     let _webview = WebViewBuilder::new(window)?
         .with_url(&url.to_string())?
-        // .with_devtools(true)
+       //调试模式
+        .with_devtools(true)
         .with_initialization_script(include_str!("pake.js"))
         .with_ipc_handler(handler)
+    
         .build()?;
 
     // _webview.open_devtools();
@@ -116,9 +159,29 @@ fn main() -> wry::Result<()> {
     });
 }
 
-fn get_windows_config() -> Option<WindowConfig> {
+fn get_windows_config() -> Option<(WindowConfig,BundleConfig) > {
     let config_file = include_str!("../tauri.conf.json");
     let config: Config = serde_json::from_str(config_file).expect("failed to parse windows config");
 
-    config.tauri.windows.iter().next().cloned()
+    Some((config.tauri.windows.iter().next().cloned().expect("failed to parse windows config"),config.tauri.bundle))
 }
+
+
+fn load_icon(path: &Path) -> Icon {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open(path)
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+ 
+    Icon::from_rgba(icon_rgba, icon_width, icon_height).expect("Failed to open icon")
+}
+
+
+
+
+
+

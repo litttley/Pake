@@ -1,6 +1,11 @@
 window.addEventListener('DOMContentLoaded', (_event) => {
     const style = document.createElement('style');
     style.innerHTML = `
+
+    *::-webkit-scrollbar {
+      display: none;
+    }
+
     .panel.give_me .nav_view {
       top: 154px !important;
     }
