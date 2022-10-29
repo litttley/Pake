@@ -84,11 +84,8 @@ fn main() -> wry::Result<()> {
         .build(&event_loop)
         .unwrap();
 
-      let s =   icon.into_iter().find(|x|x.ends_with(".png")).map(|x|  {
-      
-   
-        load_icon(Path::new(&x ))
-      } );
+      let window_icon =   icon.into_iter().find(|x|x.ends_with(".png")).map(|x|load_icon(Path::new(&x ))
+       );
     let window = WindowBuilder::new()
     .with_resizable(resizable)
    
@@ -106,7 +103,7 @@ fn main() -> wry::Result<()> {
     // .with_menu(menu_bar_menu)
 
     .with_title(title)
-    .with_window_icon(s)
+    .with_window_icon(window_icon)
     .with_inner_size(wry::application::dpi::LogicalSize::new(width, height))
     .build(&event_loop)
     .unwrap();
