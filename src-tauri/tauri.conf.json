@@ -6,8 +6,8 @@
   "tauri": {
     "windows": [
       {
-        "title":"WeRead",
-        "url": "https://weread.qq.com/",
+        "title":"Toolsfun",
+        "url": "https://tools.fun/",
         "transparent": true,
         "fullscreen": false,
         "width": 1200,
@@ -20,7 +20,7 @@
       "all": true
     },
     "bundle": {
-      "icon": ["icons/weRead.icns","icons/weRead.ico","icons/weRead_256x256x32.png"],
+      "icon": ["icons/tool.icns","icons/tool.ico", "icons/tool_256x256x32.png"],
       "active": true,
       "category": "DeveloperTool",
       "copyright": "",
@@ -28,7 +28,7 @@
         "depends": []
       },
       "externalBin": [],
-      "identifier": "com.tw93.weRead",
+      "identifier": "com.fun.tools",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

@@ -1,4 +1,10 @@
+// 关闭编辑后黑窗口
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+  )]
  use image;
+use image::ImageFormat;
 use tauri_utils::config::{Config, WindowConfig,BundleConfig};
 use wry::application::window::Icon;
 use std::path::Path;
@@ -84,8 +90,8 @@ fn main() -> wry::Result<()> {
         .build(&event_loop)
         .unwrap();
 
-      let window_icon =   icon.into_iter().find(|x|x.ends_with(".png")).map(|x|load_icon(Path::new(&x ))
-       );
+    //   let window_icon =   icon.into_iter().find(|x|x.ends_with(".png")).map(|x|load_icon(Path::new(&x ))
+    //    );
     let window = WindowBuilder::new()
     .with_resizable(resizable)
    
@@ -103,7 +109,7 @@ fn main() -> wry::Result<()> {
     // .with_menu(menu_bar_menu)
 
     .with_title(title)
-    .with_window_icon(window_icon)
+    .with_window_icon(Some(load_icon()))
     .with_inner_size(wry::application::dpi::LogicalSize::new(width, height))
     .build(&event_loop)
     .unwrap();
@@ -125,7 +131,7 @@ fn main() -> wry::Result<()> {
     let _webview = WebViewBuilder::new(window)?
         .with_url(&url.to_string())?
        //调试模式
-        .with_devtools(true)
+        // .with_devtools(true)
         .with_initialization_script(include_str!("pake.js"))
         .with_ipc_handler(handler)
     
@@ -164,13 +170,15 @@ fn get_windows_config() -> Option<(WindowConfig,BundleConfig) > {
 }
 
 
-fn load_icon(path: &Path) -> Icon {
+fn load_icon( ) -> Icon {
     let (icon_rgba, icon_width, icon_height) = {
-        let image = image::open(path)
-            .expect("Failed to open icon path")
-            .into_rgba8();
-        let (width, height) = image.dimensions();
-        let rgba = image.into_raw();
+        let bytes: Vec<u8> = include_bytes!("../icons/icon.png").to_vec();
+        let imagebuffer = image::load_from_memory_with_format(&bytes, ImageFormat::Png).unwrap().into_rgba8();
+        // let image = image::open(path)
+        //     .expect("Failed to open icon path")
+        //     .into_rgba8();
+        let (width, height) = imagebuffer.dimensions();
+        let rgba = imagebuffer.into_raw();
         (rgba, width, height)
     };
  
