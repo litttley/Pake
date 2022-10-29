@@ -18,7 +18,7 @@
       "all": true
     },
     "bundle": {
-      "icon": ["icons/weRead.icns"],
+      "icon": ["icons/weRead.icns","icons/weRead.ico"],
       "active": true,
       "category": "DeveloperTool",
       "copyright": "",

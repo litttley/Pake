@@ -8,11 +8,20 @@ fn main() -> wry::Result<()> {
             event_loop::{ControlFlow, EventLoop},
             keyboard::KeyCode,
             menu::{MenuBar as Menu, MenuItem, MenuItemAttributes, MenuType},
-            platform::macos::WindowBuilderExtMacOS,
+            // platform::macos::WindowBuilderExtMacOS,
             window::{Fullscreen, Window, WindowBuilder},
         },
         webview::WebViewBuilder,
     };
+
+    // #[cfg(target_os = "macos")]
+    // use wry::application::platform::macos::EventLoopWindowTargetExtMacOS;
+    // #[cfg(target_os = "macos")]
+    // use wry::application::platform::macos::WindowBuilderExtMacOS;
+    // #[cfg(target_os = "linux")]
+    // use wry::application::platform::unix::{WindowBuilderExtUnix, WindowExtUnix};
+    // #[cfg(windows)]
+    // use wry::application::platform::windows::{WindowBuilderExtWindows, WindowExtWindows};
 
     let mut menu_bar_menu = Menu::new();
     let mut first_menu = Menu::new();
@@ -48,15 +57,16 @@ fn main() -> wry::Result<()> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_resizable(resizable)
-        .with_titlebar_transparent(transparent)
+        // .with_title(title)
+        // .with_titlebar_transparent(transparent)
         .with_fullscreen(if fullscreen {
             Some(Fullscreen::Borderless(None))
         } else {
             None
         })
-        .with_fullsize_content_view(true)
-        .with_titlebar_buttons_hidden(false)
-        .with_title_hidden(true)
+        // .with_fullsize_content_view(true)
+        // .with_titlebar_buttons_hidden(false)
+        // .with_title_hidden(true)
         .with_menu(menu_bar_menu)
         .with_inner_size(wry::application::dpi::LogicalSize::new(width, height))
         .build(&event_loop)
